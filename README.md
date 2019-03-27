@@ -121,3 +121,19 @@ js/application-624db69a410523992ade.js.map    425 KiB  application  [emitted]  a
                              manifest.json  372 bytes               [emitted]
 ℹ ｢wdm｣: Compiled successfully.
 ```
+
+Now you can use `javascript_pack_tag` and `stylesheet_pack_tag` helpers in your hanami application
+
+```erb
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Web</title>
+    <%= javascript_pack_tag "application" %>
+  </head>
+  <body>
+    <%= yield %>
+  </body>
+</html>
+```
+
