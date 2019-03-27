@@ -1,5 +1,8 @@
-require 'hanami/helpers'
-require 'hanami/assets'
+require "hanami/helpers"
+require "webpacker/helper"
+
+require_relative "../../lib/webpacker"
+require_relative "./views/head_elements_helper"
 
 module Web
   class Application < Hanami::Application
@@ -20,6 +23,7 @@ module Web
       #
       load_paths << [
         'controllers',
+        'helpers',
         'views'
       ]
 
@@ -86,6 +90,10 @@ module Web
       # Configure Rack middleware for this application
       #
       # middleware.use Rack::Protection
+      if Hanami.env?(:development)
+        require "webpacker/dev_server_proxy"
+        middleware.use Webpacker::DevServerProxy, ssl_verify_none: true
+      end
 
       # Default format for the requests that don't specify an HTTP_ACCEPT header
       # Argument: A symbol representation of a mime type, defaults to :html
@@ -108,44 +116,6 @@ module Web
       # The relative path to templates
       #
       templates 'templates'
-
-      ##
-      # ASSETS
-      #
-      assets do
-        # JavaScript compressor
-        #
-        # Supported engines:
-        #
-        #   * :builtin
-        #   * :uglifier
-        #   * :yui
-        #   * :closure
-        #
-        # See: http://hanamirb.org/guides/assets/compressors
-        #
-        # In order to skip JavaScript compression comment the following line
-        javascript_compressor :builtin
-
-        # Stylesheet compressor
-        #
-        # Supported engines:
-        #
-        #   * :builtin
-        #   * :yui
-        #   * :sass
-        #
-        # See: http://hanamirb.org/guides/assets/compressors
-        #
-        # In order to skip stylesheet compression comment the following line
-        stylesheet_compressor :builtin
-
-        # Specify sources for assets
-        #
-        sources << [
-          'assets'
-        ]
-      end
 
       ##
       # SECURITY
@@ -220,13 +190,15 @@ module Web
       #
       #  * https://developer.mozilla.org/en-US/docs/Web/Security/CSP/CSP_policy_directives
       #
+      csp_connect_src = Hanami.env?(:development) ? ["'self'", "http://localhost:3035", "ws://localhost:3035"].join(" ") : "'self'"
+
       security.content_security_policy %{
         form-action 'self';
         frame-ancestors 'self';
         base-uri 'self';
         default-src 'none';
         script-src 'self';
-        connect-src 'self';
+        connect-src #{csp_connect_src};
         img-src 'self' https: data:;
         style-src 'self' 'unsafe-inline' https:;
         font-src 'self';
@@ -256,7 +228,7 @@ module Web
       # See: http://www.rubydoc.info/gems/hanami-view#Configuration
       view.prepare do
         include Hanami::Helpers
-        include Web::Assets::Helpers
+        include Web::Helpers::Assets
       end
     end
 

@@ -1,3 +1,6 @@
+.bundle
 /db/*.sqlite
-/public/assets*
+/public/assets
+/public/bundles*
+/node_modules
 /tmp

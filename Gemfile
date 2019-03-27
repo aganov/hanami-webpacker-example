@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 gem 'rake'
 gem 'hanami',       '~> 1.3'
 gem 'hanami-model', '~> 1.3'
-
+gem 'webpacker'
 gem 'sqlite3'
 
 group :development do
